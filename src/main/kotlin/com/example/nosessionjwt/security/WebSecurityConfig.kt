@@ -31,11 +31,9 @@ class WebSecurityConfig(
         val jsonAuthFilter = JsonRequestAuthenticationFilter(objectMapper)
         jsonAuthFilter.setRequiresAuthenticationRequestMatcher(AntPathRequestMatcher("/api/login", "POST"))
         jsonAuthFilter.setAuthenticationSuccessHandler { _, response, auth ->
-            run {
-                val authToken = jwtProvider.createToken(auth.principal as JWTLoginUser)
-                response.setHeader(X_AUTH_TOKEN, authToken)
-                response.status = 200
-            }
+            val authToken = jwtProvider.createToken(auth.principal as JWTLoginUser)
+            response.setHeader(X_AUTH_TOKEN, authToken)
+            response.status = 200
         }
         jsonAuthFilter.setAuthenticationManager(authenticationManagerBean())
         http.addFilter(jsonAuthFilter)
