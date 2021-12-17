@@ -1,7 +1,6 @@
 package com.example.nosessionjwt.security
 
-class EmailAndPasswordJsonRequest {
-    var email: String? = null
-    var password: String? = null
-}
+import com.fasterxml.jackson.annotation.JsonCreator
 
+data class EmailAndPasswordJsonRequest
+@JsonCreator constructor(val email: String, val password: String)

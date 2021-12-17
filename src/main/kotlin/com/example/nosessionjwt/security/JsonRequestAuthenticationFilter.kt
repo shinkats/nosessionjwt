@@ -8,10 +8,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 
-class JsonRequestAuthenticationFilter : UsernamePasswordAuthenticationFilter() {
-
-    private val objectMapper = ObjectMapper()
-
+class JsonRequestAuthenticationFilter(private val objectMapper: ObjectMapper) : UsernamePasswordAuthenticationFilter() {
     override fun attemptAuthentication(request: HttpServletRequest, response: HttpServletResponse?): Authentication {
         val principal = objectMapper.readValue(request.inputStream, EmailAndPasswordJsonRequest::class.java)
         val authRequest = UsernamePasswordAuthenticationToken(principal.email, principal.password)

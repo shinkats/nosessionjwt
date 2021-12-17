@@ -41,9 +41,8 @@ class Controller(
 ) {
     @PostMapping(path = ["/api/signup"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun signup(@RequestBody body: EmailAndPasswordJsonRequest, httpServletResponse: HttpServletResponse): String {
-        val email = body.email!!
         val password = passwordEncoder.encode(body.password)
-        val user = userRepository.save(User(email = email, password = password))
+        val user = userRepository.save(User(email = body.email, password = password))
         val jwtLoginUser = JWTLoginUser(user.id!!, user.roles)
         val authToken = jwtProvider.createToken(jwtLoginUser)
         httpServletResponse.setHeader(X_AUTH_TOKEN, authToken)
