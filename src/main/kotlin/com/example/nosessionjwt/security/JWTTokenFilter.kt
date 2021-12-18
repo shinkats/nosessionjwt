@@ -13,9 +13,9 @@ class JWTTokenFilter(private val jwtProvider: JWTProvider) : GenericFilterBean()
         val token: String? = jwtProvider.getToken(request)
         if (token != null) {
             val decodedJWT = jwtProvider.verifyToken(token)
-            val jwtLoginUser = jwtProvider.retrieve(decodedJWT)
+            val loginUser = jwtProvider.retrieve(decodedJWT)
             SecurityContextHolder.getContext().authentication =
-                UsernamePasswordAuthenticationToken(jwtLoginUser, null, jwtLoginUser.authorities)
+                UsernamePasswordAuthenticationToken(loginUser, null, loginUser.authorities)
         }
         chain.doFilter(request, response)
     }
