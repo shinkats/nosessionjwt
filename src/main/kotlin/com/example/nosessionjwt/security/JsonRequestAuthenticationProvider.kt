@@ -21,8 +21,8 @@ class JsonRequestAuthenticationProvider(
         if (!passwordEncoder.matches(password, user.password)) {
             throw BadCredentialsException("incorrect password")
         }
-        val jwtLoginUser = JWTLoginUser(user.id!!, user.roles)
-        return UsernamePasswordAuthenticationToken(jwtLoginUser, null, jwtLoginUser.authorities)
+        val loginUser = LoginUser(user.id!!, user.roles)
+        return UsernamePasswordAuthenticationToken(loginUser, null, loginUser.authorities)
     }
 
     override fun supports(authentication: Class<*>): Boolean {

@@ -3,9 +3,9 @@ package com.example.nosessionjwt
 import com.example.nosessionjwt.entity.User
 import com.example.nosessionjwt.repository.UserRepository
 import com.example.nosessionjwt.security.EmailAndPasswordJsonRequest
-import com.example.nosessionjwt.security.JWTLoginUser
 import com.example.nosessionjwt.security.JWTProvider
 import com.example.nosessionjwt.security.JWTProvider.Companion.X_AUTH_TOKEN
+import com.example.nosessionjwt.security.LoginUser
 import com.example.nosessionjwt.security.WebSecurityConfig.Companion.IS_AUTHENTICATED_FULLY
 import com.example.nosessionjwt.security.WebSecurityConfig.Companion.ROLE_NORMAL
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -43,18 +43,18 @@ class Controller(
     fun signup(@RequestBody body: EmailAndPasswordJsonRequest, httpServletResponse: HttpServletResponse): String {
         val password = passwordEncoder.encode(body.password)
         val user = userRepository.save(User(email = body.email, password = password))
-        val jwtLoginUser = JWTLoginUser(user.id!!, user.roles)
-        val authToken = jwtProvider.createToken(jwtLoginUser)
+        val loginUser = LoginUser(user.id!!, user.roles)
+        val authToken = jwtProvider.createToken(loginUser)
         httpServletResponse.setHeader(X_AUTH_TOKEN, authToken)
         // ログイン済とみなす
         SecurityContextHolder.getContext().authentication =
-            UsernamePasswordAuthenticationToken(jwtLoginUser, null, jwtLoginUser.authorities)
+            UsernamePasswordAuthenticationToken(loginUser, null, loginUser.authorities)
         return """{ "id": ${user.id} }"""
     }
 
     @GetMapping("/api/non-personal")
-    fun nonPersonal(@AuthenticationPrincipal jwtLoginUser: JWTLoginUser?): String {
-        return if (jwtLoginUser == null) {
+    fun nonPersonal(@AuthenticationPrincipal loginUser: LoginUser?): String {
+        return if (loginUser == null) {
             "everyone can see. not logged in."
         } else {
             "everyone can see. logged in."
@@ -63,13 +63,13 @@ class Controller(
 
     @Secured(IS_AUTHENTICATED_FULLY) // ログインしていればアクセス可能
     @GetMapping("/api/personal/user")
-    fun personalUser(@AuthenticationPrincipal jwtLoginUser: JWTLoginUser): User =
-        userRepository.findById(jwtLoginUser.id)
+    fun personalUser(@AuthenticationPrincipal loginUser: LoginUser): User =
+        userRepository.findById(loginUser.id)
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
 
     @PreAuthorize("hasRole('$ROLE_NORMAL')") // ログイン時にDBから取得した権限に指定のものが含まれていればアクセス可能
     @GetMapping(path = ["/api/personal/user"], params = ["role"])
-    fun personalUserWithRole(@AuthenticationPrincipal jwtLoginUser: JWTLoginUser): User =
-        userRepository.findById(jwtLoginUser.id)
+    fun personalUserWithRole(@AuthenticationPrincipal loginUser: LoginUser): User =
+        userRepository.findById(loginUser.id)
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
 }

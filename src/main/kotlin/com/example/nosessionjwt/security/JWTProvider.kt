@@ -14,7 +14,7 @@ class JWTProvider(@Value("${'$'}{jwt.secret}") secret: String) {
 
     val algorithm: Algorithm = Algorithm.HMAC256(secret)
 
-    fun createToken(user: JWTLoginUser): String {
+    fun createToken(user: LoginUser): String {
         val now = Date()
         return JWT.create()
             .withIssuer("com.example.nosessionjwt")
@@ -36,10 +36,10 @@ class JWTProvider(@Value("${'$'}{jwt.secret}") secret: String) {
         return verifier.verify(token)
     }
 
-    fun retrieve(decodedJWT: DecodedJWT): JWTLoginUser {
+    fun retrieve(decodedJWT: DecodedJWT): LoginUser {
         val userId = decodedJWT.subject.toInt()
         val roles = decodedJWT.getClaim(CLAIM_ROLES).asList(String::class.java)
-        return JWTLoginUser(userId, roles)
+        return LoginUser(userId, roles)
     }
 
     companion object {
