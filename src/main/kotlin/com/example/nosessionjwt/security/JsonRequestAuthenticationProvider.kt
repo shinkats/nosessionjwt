@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.crypto.password.PasswordEncoder
 
 
@@ -21,7 +22,7 @@ class JsonRequestAuthenticationProvider(
         if (!passwordEncoder.matches(password, user.password)) {
             throw BadCredentialsException("incorrect password")
         }
-        val loginUser = LoginUser(user.id!!, user.roles)
+        val loginUser = LoginUser(user.id!!, user.roles.map { SimpleGrantedAuthority(it) })
         return UsernamePasswordAuthenticationToken(loginUser, null, loginUser.authorities)
     }
 

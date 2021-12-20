@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.DecodedJWT
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Component
 import java.util.*
 import javax.servlet.ServletRequest
@@ -39,7 +40,7 @@ class JWTProvider(@Value("${'$'}{jwt.secret}") secret: String) {
     fun retrieve(decodedJWT: DecodedJWT): LoginUser {
         val userId = decodedJWT.subject.toInt()
         val roles = decodedJWT.getClaim(CLAIM_ROLES).asList(String::class.java)
-        return LoginUser(userId, roles)
+        return LoginUser(userId, roles.map { SimpleGrantedAuthority(it) })
     }
 
     companion object {

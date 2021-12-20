@@ -16,6 +16,7 @@ import org.springframework.security.access.annotation.Secured
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.GetMapping
@@ -43,7 +44,7 @@ class Controller(
     fun signup(@RequestBody body: EmailAndPasswordJsonRequest, httpServletResponse: HttpServletResponse): String {
         val password = passwordEncoder.encode(body.password)
         val user = userRepository.save(User(email = body.email, password = password))
-        val loginUser = LoginUser(user.id!!, user.roles)
+        val loginUser = LoginUser(user.id!!, user.roles.map { SimpleGrantedAuthority(it) })
         val authToken = jwtProvider.createToken(loginUser)
         httpServletResponse.setHeader(X_AUTH_TOKEN, authToken)
         // ログイン済とみなす
